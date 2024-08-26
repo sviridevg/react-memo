@@ -1,12 +1,13 @@
 .modal {
   width: 480px;
-  height: 459px;
+  /* height: 459px; */
   border-radius: 12px;
   background: #c2f5ff;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
+  padding-block: 36px;
 }
 
 .image {
@@ -25,6 +26,7 @@
   line-height: 48px;
 
   margin-bottom: 28px;
+  text-align: center;
 }
 
 .description {
@@ -48,4 +50,50 @@
   line-height: 72px;
 
   margin-bottom: 40px;
+}
+
+.nameInput {
+  width: 276px;
+  height: 45px;
+  border-radius: 10px;
+  border: none;
+  box-sizing: border-box;
+  padding: 10px 14px 10px 14px;
+  margin-bottom: 28px;
+  color: #999999;
+  font-size: 24px;
+}
+
+.nameInput:active,
+:hover,
+:focus {
+  outline: 0;
+  outline-offset: 0;
+}
+
+.nameInput::placeholder {
+  color: #999999;
+  font-family: StratosSkyeng;
+  font-size: 24px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 32px;
+  text-align: center;
+}
+
+.gameButtonsLink {
+  background-color: transparent;
+  border: none;
+  font-family: Roboto;
+  font-size: 18px;
+  font-weight: 400;
+  line-height: 32px;
+  text-align: center;
+  color: #004980;
+  margin-top: 18px;
+}
+
+.gameButtonsLink:hover {
+  text-decoration: underline;
+  cursor: pointer;
 }

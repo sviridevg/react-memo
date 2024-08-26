@@ -23,6 +23,7 @@ function getTimerValue(startDate, endDate) {
     return {
       minutes: 0,
       seconds: 0,
+      diffInSecconds: 0,
     };
   }
 
@@ -31,11 +32,13 @@ function getTimerValue(startDate, endDate) {
   }
 
   const diffInSecconds = Math.floor((endDate.getTime() - startDate.getTime()) / 1000);
+
   const minutes = Math.floor(diffInSecconds / 60);
   const seconds = diffInSecconds % 60;
   return {
     minutes,
     seconds,
+    diffInSecconds,
   };
 }
 
@@ -52,7 +55,7 @@ export function Cards({ pairsCount = 3, previewSeconds = 5 }) {
   }
 
   // Обработка количества попыток
-  const { tries, setTries, isEasyMode } = useContext(EasyContext);
+  const { tries, setTries, isEasyMode, checkedLevel, leadrs, setLeaders } = useContext(EasyContext);
 
   // В cards лежит игровое поле - массив карт и их состояние открыта\закрыта
   const [cards, setCards] = useState([]);
@@ -69,6 +72,7 @@ export function Cards({ pairsCount = 3, previewSeconds = 5 }) {
   const [timer, setTimer] = useState({
     seconds: 0,
     minutes: 0,
+    diffInSecconds: 0,
   });
 
   // Если количество попыток равно 0 устанавливается стату проиграл и игра заканчивается
@@ -187,6 +191,17 @@ export function Cards({ pairsCount = 3, previewSeconds = 5 }) {
     // ... игра продолжается
   };
 
+  // Проверка на попадание в топ 10 игроков
+  function isTopTen() {
+    const isTenPlayers = leadrs.length === 10;
+    if (status === STATUS_WON && checkedLevel === 3) {
+      if (leadrs.at(-1).time > timer.diffInSecconds || (isTenPlayers && leadrs[9].time > timer.diffInSecconds)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   const isGameEnded = status === STATUS_LOST || status === STATUS_WON || status === STATUS_PAUSED;
 
   // Игровой цикл
@@ -220,6 +235,7 @@ export function Cards({ pairsCount = 3, previewSeconds = 5 }) {
     const intervalId = setInterval(() => {
       setTimer(getTimerValue(gameStartDate, gameEndDate));
     }, 300);
+
     return () => {
       clearInterval(intervalId);
     };
@@ -277,6 +293,11 @@ export function Cards({ pairsCount = 3, previewSeconds = 5 }) {
             gameDurationMinutes={timer.minutes}
             onClick={whatsNext}
             tries={tries}
+            checkedLevel={checkedLevel}
+            isTopTen={isTopTen()}
+            leadrs={leadrs}
+            setLeaders={setLeaders}
+            diffInSecconds={timer.diffInSecconds}
           />
         </div>
       ) : null}
