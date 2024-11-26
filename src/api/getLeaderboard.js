@@ -10,6 +10,5 @@ export const getLeaderboard = async () => {
     throw new Error(`Не удалось получить данные с сервера! status: ${response.status}`);
   }
 
-  // console.log(response.json());
   return await response.json();
 };
