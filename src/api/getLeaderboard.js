@@ -1,4 +1,4 @@
-const apiUrl = "https://wedev-api.sky.pro/api/leaderboard";
+const apiUrl = "https://wedev-api.sky.pro/api/v2/leaderboard";
 
 export const getLeaderboard = async () => {
   // Запрос к API получения списка победителей
@@ -10,5 +10,6 @@ export const getLeaderboard = async () => {
     throw new Error(`Не удалось получить данные с сервера! status: ${response.status}`);
   }
 
+  // console.log(response.json());
   return await response.json();
 };
