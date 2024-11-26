@@ -24,11 +24,18 @@ export function Leaderboard() {
       <div className={styles.titleBoard}>
         <p className={styles.title}>Позиция</p>
         <p className={styles.title}>Пользователь</p>
+        <p className={styles.title}>Достижения</p>
         <p className={styles.title}>Время</p>
       </div>
       {leadrs?.length &&
         leadrs.map((leader, index) => (
-          <LeaderboardPage key={leader.id} id={index + 1} name={leader.name} time={leader.time} />
+          <LeaderboardPage
+            key={leader.id}
+            id={index + 1}
+            name={leader.name}
+            time={leader.time}
+            achievements={leader.achievements}
+          />
         ))}
     </div>
   );
