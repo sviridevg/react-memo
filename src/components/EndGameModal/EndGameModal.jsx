@@ -12,9 +12,8 @@ export function EndGameModal({
   gameDurationMinutes,
   onClick,
   tries,
-  checkedLevel,
+  achievements,
   isTopTen,
-  leaders,
   setLeaders,
   diffInSecconds,
 }) {
@@ -26,9 +25,11 @@ export function EndGameModal({
   }
 
   function handleClick() {
-    postLeaderboard({ userName: inputValue, userTime: diffInSecconds }).then(leaderboard => {
-      setLeaders(leaderboard.leaders.sort((a, b) => a.time - b.time).slice(0, 10));
-    });
+    postLeaderboard({ userName: inputValue, userTime: diffInSecconds, achievements: achievements }).then(
+      leaderboard => {
+        setLeaders(leaderboard.leaders.sort((a, b) => a.time - b.time).slice(0, 10));
+      },
+    );
     goTo();
   }
 

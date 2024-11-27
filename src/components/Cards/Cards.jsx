@@ -8,6 +8,9 @@ import { Card } from "../../components/Card/Card";
 import { EasyContext } from "../../contexte/contexte";
 import { useNavigate } from "react-router-dom";
 
+import cheater from "./images/chater.svg";
+import eyes from "./images/eyes.svg";
+
 // Игра закончилась
 const STATUS_LOST = "STATUS_LOST";
 const STATUS_WON = "STATUS_WON";
@@ -241,6 +244,110 @@ export function Cards({ pairsCount = 3, previewSeconds = 5 }) {
     };
   }, [gameStartDate, gameEndDate]);
 
+  // необходимо сделать обработчик который собирает инфо о использовании помощников
+  const [isRandomPairOpened, setIsRandomPairOpened] = useState(false);
+  const [isEyesActivated, setIsEyesActivated] = useState(false);
+  const [isEyesUsed, setIsEyesUsed] = useState(false);
+  const [achievements, setAchievements] = useState([1, 2]);
+
+  // Рендер картинок читерства
+  const renderAchivImage = (src, tooltip, isDisabled) => {
+    const hasTooltip = tooltip !== null && !isDisabled;
+
+    return (
+      <div className={styles.imgWrapper} style={{ pointerEvents: isDisabled ? "none" : "auto" }}>
+        <img className={`${styles.img} ${isDisabled ? styles.disabled : ""}`} src={src} alt="Читерство" />
+        {hasTooltip && <div className={styles.tooltip}>{tooltip}</div>}
+      </div>
+    );
+  };
+
+  // Текстовка для подсказки Прозрение
+  const eyesText = (
+    <div className={styles.eyesTex}>
+      <p className={styles.eyesTextTitle}>Прозрение</p>
+      <p>На 5 секунд показываются все карты. Таймер длительности игры на это время останавливается.</p>
+    </div>
+  );
+
+  // Текстовка для подсказки Алохомора
+  const cheaterText = (
+    <div className={styles.eyesTex}>
+      <p className={styles.eyesTextTitle}>Алохомора</p>
+      <p>Открывается случайная пара карт.</p>
+    </div>
+  );
+
+  // Определение картинок
+  const firstImagesElement = renderAchivImage(eyes, eyesText, isEyesUsed);
+  const secondImagesElement = renderAchivImage(cheater, cheaterText, isRandomPairOpened);
+
+  // Читерство - открываем все карты на 5 секунд
+  const activateEyesEffect = () => {
+    if (isEyesUsed || isEyesActivated) return;
+
+    const savedCards = [...cards];
+
+    // Открываем все карты
+    const openedCards = cards.map(card => ({ ...card, open: true }));
+    setCards(openedCards);
+
+    // Останавливаем таймер
+    const savedGameEndDate = gameEndDate;
+
+    setGameEndDate(new Date());
+
+    setIsEyesActivated(true);
+    setIsEyesUsed(true);
+
+    // Возвращаем состояние через 5 секунд
+    setTimeout(() => {
+      setCards(savedCards);
+      setGameEndDate(savedGameEndDate);
+      setIsEyesActivated(false);
+    }, 5000);
+  };
+
+  // Читерство - открываем две случайные карты
+  const openRandomPair = () => {
+    // Проверяем, была ли уже вызвана функция
+    if (isRandomPairOpened) return;
+
+    const closedCards = cards.filter(card => !card.open);
+    if (closedCards.length < 2) return;
+
+    const shuffledClosedCards = shuffle(closedCards);
+    const [firstCard, secondCard] = shuffledClosedCards.slice(0, 2);
+
+    const updatedCards = cards.map(card => {
+      if (card.id === firstCard.id || card.id === secondCard.id) {
+        return { ...card, open: true };
+      }
+      return card;
+    });
+
+    setCards(updatedCards);
+    setIsRandomPairOpened(true);
+  };
+
+  // Записываем данные про использование легкого режима и использовании читерства
+  useEffect(() => {
+    let currentGameAchievements = [...achievements];
+
+    // Проверяем, использовались ли легкий режим
+    if (isEasyMode) {
+      currentGameAchievements = currentGameAchievements.filter(ach => ach !== 1);
+    }
+
+    // Проверяем, использовались ли суперсилы
+    if (isEyesUsed || isRandomPairOpened) {
+      currentGameAchievements = currentGameAchievements.filter(ach => ach !== 2);
+    }
+
+    // Обновляем состояния с учетом новых достижений
+    setAchievements(currentGameAchievements);
+  }, [isEyesUsed, isRandomPairOpened, isEasyMode]);
+
   return (
     <div className={styles.container}>
       <div className={styles.header}>
@@ -264,6 +371,12 @@ export function Cards({ pairsCount = 3, previewSeconds = 5 }) {
             </>
           )}
         </div>
+        {status === STATUS_IN_PROGRESS ? (
+          <div className={styles.cheaterContainer}>
+            <div onClick={activateEyesEffect}>{firstImagesElement}</div>
+            <div onClick={openRandomPair}>{secondImagesElement}</div>
+          </div>
+        ) : null}
         <div className={styles.buttonContainer}>
           {isEasyMode && status === STATUS_IN_PROGRESS && (
             <span className={styles.attempt}>Осталось {tries} попытки!</span>
@@ -298,6 +411,7 @@ export function Cards({ pairsCount = 3, previewSeconds = 5 }) {
             leadrs={leadrs}
             setLeaders={setLeaders}
             diffInSecconds={timer.diffInSecconds}
+            achievements={achievements}
           />
         </div>
       ) : null}
