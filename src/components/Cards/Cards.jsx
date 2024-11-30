@@ -66,6 +66,23 @@ export function Cards({ pairsCount = 3, previewSeconds = 5 }) {
   // Текущий статус игры
   const [status, setStatus] = useState(STATUS_PREVIEW);
 
+  // Последняя открытая карта
+  const [lastOpenedCard, setLastOpenedCard] = useState(null);
+  useEffect(() => {
+    console.log(lastOpenedCard);
+    console.log(cards);
+  }, [lastOpenedCard, cards]);
+
+  // Закрытие последней карты
+  function closeLastOpenedCard(status) {
+    if (status === STATUS_IN_PROGRESS && lastOpenedCard) {
+      const updatedCards = cards.map(card => (card.id === lastOpenedCard.id ? { ...card, open: false } : card));
+
+      setCards(updatedCards);
+      setLastOpenedCard(null); // Сбрасываем последнюю открытую карту
+    }
+  }
+
   // Дата начала игры
   const [gameStartDate, setGameStartDate] = useState(null);
   // Дата конца игры
@@ -114,10 +131,12 @@ export function Cards({ pairsCount = 3, previewSeconds = 5 }) {
     setGameEndDate(null);
     setTimer(getTimerValue(null, null));
     setStatus(STATUS_PREVIEW);
+    setTries(3);
   }
 
   function сontinueGame() {
     setStatus(STATUS_IN_PROGRESS);
+    closeLastOpenedCard(STATUS_IN_PROGRESS);
     const newStartDate = new Date();
     setGameStartDate(new Date(newStartDate.getTime() - pausedTime * 1000));
     setGameEndDate(null);
@@ -151,14 +170,11 @@ export function Cards({ pairsCount = 3, previewSeconds = 5 }) {
     }
     // Игровое поле после открытия кликнутой карты
     const nextCards = cards.map(card => {
-      if (card.id !== clickedCard.id) {
-        return card;
+      if (card.id === clickedCard.id) {
+        setLastOpenedCard({ ...card, open: true });
+        return { ...card, open: true };
       }
-
-      return {
-        ...card,
-        open: true,
-      };
+      return card;
     });
 
     setCards(nextCards);
@@ -242,7 +258,7 @@ export function Cards({ pairsCount = 3, previewSeconds = 5 }) {
 
   // Обновляем значение таймера в интервале
   useEffect(() => {
-    if (status === STATUS_PAUSED || status === STATUS_PREVIEW) return; // Не обновляем таймер при паузе и превью
+    if (status === STATUS_PAUSED || status === STATUS_PREVIEW) return;
 
     const intervalId = setInterval(() => {
       setTimer(getTimerValue(gameStartDate, gameEndDate));
@@ -251,7 +267,6 @@ export function Cards({ pairsCount = 3, previewSeconds = 5 }) {
     return () => clearInterval(intervalId);
   }, [gameStartDate, gameEndDate, status]);
 
-  // необходимо сделать обработчик который собирает инфо о использовании помощников
   const [isRandomPairOpened, setIsRandomPairOpened] = useState(false);
   const [isEyesActivated, setIsEyesActivated] = useState(false);
   const [isEyesUsed, setIsEyesUsed] = useState(false);
@@ -397,7 +412,7 @@ export function Cards({ pairsCount = 3, previewSeconds = 5 }) {
           <Card
             key={card.id}
             onClick={() => openCard(card)}
-            open={status !== STATUS_IN_PROGRESS ? true : card.open}
+            open={status === STATUS_IN_PROGRESS || status === STATUS_PAUSED ? card.open : true}
             suit={card.suit}
             rank={card.rank}
             status={STATUS_IN_PROGRESS}
