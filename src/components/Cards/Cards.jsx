@@ -132,6 +132,9 @@ export function Cards({ pairsCount = 3, previewSeconds = 5 }) {
     setTimer(getTimerValue(null, null));
     setStatus(STATUS_PREVIEW);
     setTries(3);
+    setIsRandomPairOpened(false);
+    setIsEyesActivated(false);
+    setIsEyesUsed(false);
   }
 
   function сontinueGame() {
