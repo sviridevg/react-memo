@@ -1,10 +1,10 @@
-const apiUrl = "https://wedev-api.sky.pro/api/leaderboard";
+const apiUrl = "https://wedev-api.sky.pro/api/v2/leaderboard";
 
-export const postLeaderboard = async ({ userName, userTime }) => {
+export const postLeaderboard = async ({ userName, userTime, achievements }) => {
   // Запрос к API отправки победителя
   const response = await fetch(apiUrl, {
     method: "POST",
-    body: JSON.stringify({ name: goodByeHacker(userName), time: userTime }),
+    body: JSON.stringify({ name: goodByeHacker(userName), time: userTime, achievements: achievements }),
   });
 
   if (!response.ok) {
