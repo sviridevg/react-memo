@@ -68,10 +68,6 @@ export function Cards({ pairsCount = 3, previewSeconds = 5 }) {
 
   // Последняя открытая карта
   const [lastOpenedCard, setLastOpenedCard] = useState(null);
-  useEffect(() => {
-    console.log(lastOpenedCard);
-    console.log(cards);
-  }, [lastOpenedCard, cards]);
 
   // Закрытие последней карты
   function closeLastOpenedCard(status) {
@@ -121,7 +117,8 @@ export function Cards({ pairsCount = 3, previewSeconds = 5 }) {
     setGameStartDate(startDate);
     setTimer(getTimerValue(startDate, null));
     setStatus(STATUS_IN_PROGRESS);
-    // Добавлена проверка на включенный режим 3-х попыток
+
+    // Проверка на включенный режим 3-х попыток
     if (!isEasyMode) {
       setTries(1);
     }
