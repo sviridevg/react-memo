@@ -78,6 +78,9 @@ export function Cards({ pairsCount = 3, previewSeconds = 5 }) {
     diffInSecconds: 0,
   });
 
+  // стейт для таймера
+  const [pausedTime, setPausedTime] = useState(0);
+
   // Если количество попыток равно 0 устанавливается стату проиграл и игра заканчивается
   useEffect(() => {
     if (tries === 0) {
@@ -90,8 +93,9 @@ export function Cards({ pairsCount = 3, previewSeconds = 5 }) {
     setStatus(status);
   }
 
-  function pausedGame(status = STATUS_PAUSED) {
-    setStatus(status);
+  function pausedGame() {
+    setStatus(STATUS_PAUSED);
+    setPausedTime(timer.diffInSecconds);
   }
 
   function startGame() {
@@ -112,8 +116,11 @@ export function Cards({ pairsCount = 3, previewSeconds = 5 }) {
     setStatus(STATUS_PREVIEW);
   }
 
-  function сontinueGame(status = STATUS_IN_PROGRESS) {
-    setStatus(status);
+  function сontinueGame() {
+    setStatus(STATUS_IN_PROGRESS);
+    const newStartDate = new Date();
+    setGameStartDate(new Date(newStartDate.getTime() - pausedTime * 1000));
+    setGameEndDate(null);
   }
 
   // Функция запускает разные сценарии для кнопки в модальном окне
@@ -235,14 +242,14 @@ export function Cards({ pairsCount = 3, previewSeconds = 5 }) {
 
   // Обновляем значение таймера в интервале
   useEffect(() => {
+    if (status === STATUS_PAUSED || status === STATUS_PREVIEW) return; // Не обновляем таймер при паузе и превью
+
     const intervalId = setInterval(() => {
       setTimer(getTimerValue(gameStartDate, gameEndDate));
     }, 300);
 
-    return () => {
-      clearInterval(intervalId);
-    };
-  }, [gameStartDate, gameEndDate]);
+    return () => clearInterval(intervalId);
+  }, [gameStartDate, gameEndDate, status]);
 
   // необходимо сделать обработчик который собирает инфо о использовании помощников
   const [isRandomPairOpened, setIsRandomPairOpened] = useState(false);
